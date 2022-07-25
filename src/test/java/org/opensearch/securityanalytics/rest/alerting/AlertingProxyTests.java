@@ -16,4 +16,8 @@ public class AlertingProxyTests extends OpenSearchTestCase {
         assertTrue(json.getBoolean("enabled"));
         assertEquals("monitor-1", json.getString("name"));
     }
+
+    public void testAlertingMonitorObjects() {
+        logger.info(new JSONObject(ExampleAlertingJSON.CREATE_MONITOR_1).toString(4));
+    }
 }

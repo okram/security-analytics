@@ -61,5 +61,64 @@ public class ExampleAlertingJSON {
             "  }\n" +
             "}";
 
+    public static final String CREATE_MONITOR_2 = "{\n" +
+            "  \"type\": \"monitor\",\n" +
+            "  \"name\": \"test-monitor\",\n" +
+            "  \"monitor_type\": \"query_level_monitor\",\n" +
+            "  \"enabled\": true,\n" +
+            "  \"schedule\": {\n" +
+            "    \"period\": {\n" +
+            "      \"interval\": 1,\n" +
+            "      \"unit\": \"MINUTES\"\n" +
+            "    }\n" +
+            "  },\n" +
+            "  \"inputs\": [{\n" +
+            "    \"search\": {\n" +
+            "      \"indices\": [\"accounts\"],\n" +
+            "      \"query\": {\n" +
+            "        \"size\": 0,\n" +
+            "        \"aggregations\": {},\n" +
+            "        \"query\": {\n" +
+            "          \"bool\": {\n" +
+            "            \"filter\": {\n" +
+            "              \"range\": {\n" +
+            "                \"@timestamp\": {\n" +
+            "                  \"gte\": \"||-1h\",\n" +
+            "                  \"lte\": \"\",\n" +
+            "                  \"format\": \"epoch_millis\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            }\n" +
+            "          }\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }],\n" +
+            "  \"triggers\": [{\n" +
+            "    \"name\": \"test-trigger\",\n" +
+            "    \"severity\": \"1\",\n" +
+            "    \"condition\": {\n" +
+            "      \"script\": {\n" +
+            "        \"source\": \"ctx.results[0].hits.total.value > 0\",\n" +
+            "        \"lang\": \"painless\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    \"actions\": [{\n" +
+            "      \"name\": \"test-action\",\n" +
+            "      \"destination_id\": \"ld7912sBlQ5JUWWFThoW\",\n" +
+            "      \"message_template\": {\n" +
+            "        \"source\": \"This is my message body.\"\n" +
+            "      },\n" +
+            "      \"throttle_enabled\": true,\n" +
+            "      \"throttle\": {\n" +
+            "        \"value\": 27,\n" +
+            "        \"unit\": \"MINUTES\"\n" +
+            "      },\n" +
+            "      \"subject_template\": {\n" +
+            "        \"source\": \"TheSubject\"\n" +
+            "      }\n" +
+            "    }]\n" +
+            "  }]\n" +
+            "}";
 
 }

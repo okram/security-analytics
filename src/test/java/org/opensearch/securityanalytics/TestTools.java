@@ -18,6 +18,7 @@ public class TestTools {
         // do nothing (static
     }
 
+
     public static String asString(final InputStream stream) {
         try {
             final BufferedReader b = new BufferedReader(new InputStreamReader(stream, Charset.defaultCharset()));
@@ -29,6 +30,10 @@ public class TestTools {
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static JSONObject asJSON(final InputStream stream) {
+        return new JSONObject(asString(stream));
     }
 
     public static String prettyString(final InputStream stream) {

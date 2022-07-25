@@ -12,12 +12,17 @@ import org.opensearch.rest.RestRequest;
 import org.opensearch.test.OpenSearchIntegTestCase;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 public abstract class SecurityAnalyticsIntegTestCase extends OpenSearchIntegTestCase {
 
-    public String createIndex(final String index) {
-        super.createIndex(index);
-        return index;
+    static boolean LOG = true;
+
+    public static <T> T noLog(final Supplier<T> supplier) {
+        LOG = false;
+        final T t = supplier.get();
+        LOG = true;
+        return t;
     }
 
     public Response GET(final String route) throws IOException {
@@ -44,10 +49,11 @@ public abstract class SecurityAnalyticsIntegTestCase extends OpenSearchIntegTest
         final Request request = new Request(method, route);
         if (null != jsonEntity) request.setJsonEntity(jsonEntity);
         final Response response = getRestClient().performRequest(request);
-        this.logger.info("\n" + method + " " + route + (null == jsonEntity ? "" : "\n" + new JSONObject(jsonEntity).toString(4)) +
-                "\n\t===>\n[STATUS: " + response.getStatusLine().getStatusCode() + "]" +
-                (null == response.getEntity() ? "" :
-                        "\n" + TestTools.prettyString(response.getEntity().getContent())));
+        if (LOG)
+            this.logger.info("\n" + method + " " + route + (null == jsonEntity ? "" : "\n" + new JSONObject(jsonEntity).toString(4)) +
+                    "\n\t===>\n[STATUS: " + response.getStatusLine().getStatusCode() + "]" +
+                    (null == response.getEntity() ? "" :
+                            "\n" + TestTools.prettyString(response.getEntity().getContent())));
         return response;
     }
 
