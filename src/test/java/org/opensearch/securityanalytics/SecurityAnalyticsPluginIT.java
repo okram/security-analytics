@@ -2,7 +2,7 @@
  * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-package org.opensearch.securityanalytics.rest.sap;
+package org.opensearch.securityanalytics;
 
 import org.opensearch.action.admin.cluster.node.info.NodeInfo;
 import org.opensearch.action.admin.cluster.node.info.NodesInfoRequest;
@@ -13,9 +13,7 @@ import org.opensearch.action.get.GetResponse;
 import org.opensearch.action.index.IndexResponse;
 import org.opensearch.plugins.PluginInfo;
 import org.opensearch.securityanalytics.SecurityAnalyticsIntegTestCase;
-import org.opensearch.securityanalytics.SecurityAnalyticsPlugin;
-import org.opensearch.securityanalytics.TestTools;
-import org.opensearch.securityanalytics.rest.alerting.ExampleAlertingJSON;
+import org.opensearch.securityanalytics.alerting.ExampleAlertingJSON;
 
 import java.util.List;
 import java.util.Map;
@@ -68,6 +66,6 @@ public class SecurityAnalyticsPluginIT extends SecurityAnalyticsIntegTestCase {
         // POST _plugins/_alerting/monitors
         assertEquals(201, POST("_plugins/_alerting/monitors", ExampleAlertingJSON.CREATE_MONITOR_2).getStatusLine().getStatusCode());
         // GET _plugins/_alerting/monitors/_search
-        // TODO: assertEquals(200, GET("_plugins/_alerting/monitors/_search", ExampleAlertingJSON.SEARCH_MONITOR_1).getStatusLine().getStatusCode());
+        assertEquals(200, GET("_plugins/_alerting/monitors/_search", ExampleAlertingJSON.SEARCH_MONITOR_1).getStatusLine().getStatusCode());
     }
 }

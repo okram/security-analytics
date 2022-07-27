@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.opensearch.securityanalytics.rest.alerting;
+package org.opensearch.securityanalytics.alerting;
 
 import org.json.JSONObject;
 import org.opensearch.test.OpenSearchTestCase;

@@ -15,7 +15,7 @@ import java.nio.charset.Charset;
 public class TestTools {
 
     private TestTools() {
-        // do nothing (static
+        // do nothing
     }
 
 

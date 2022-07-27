@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.opensearch.securityanalytics.rest.alerting;
+package org.opensearch.securityanalytics.alerting;
 
 import org.json.JSONObject;
 
@@ -56,7 +56,7 @@ public class ExampleAlertingJSON {
     public static final String SEARCH_MONITOR_1 = "{\n" +
             "  \"query\": {\n" +
             "    \"match\" : {\n" +
-            "      \"monitor.name\": \"monitor-1\"\n" +
+            "      \"monitor.name\": \"test-monitor\"\n" +
             "    }\n" +
             "  }\n" +
             "}";
