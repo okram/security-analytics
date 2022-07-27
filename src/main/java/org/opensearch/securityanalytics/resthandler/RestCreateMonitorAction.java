@@ -17,6 +17,10 @@ import org.opensearch.securityanalytics.action.CreateMonitorAction;
 import org.opensearch.securityanalytics.action.CreateMonitorRequest;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+
+import static org.opensearch.rest.RestRequest.Method.GET;
 
 public class RestCreateMonitorAction extends BaseRestHandler {
 
@@ -28,17 +32,27 @@ public class RestCreateMonitorAction extends BaseRestHandler {
     }
 
     @Override
+    public List<Route> routes() {
+        return List.of(new Route(GET, SecurityAnalyticsPlugin.SAP_BASE_URI + "/" + getName()));
+    }
+
+    @Override
     protected RestChannelConsumer prepareRequest(final RestRequest request, final NodeClient client) throws IOException {
         final String monitorId = request.param("monitorId");
         if (monitorId == null || monitorId.isEmpty())
             throw new IllegalArgumentException("missing monitorId");
 
-        LOG.debug("{} {}/{}", request.method(), SecurityAnalyticsPlugin.MONITOR_BASE_URI, monitorId);
+        LOG.debug("{} {}/{}", request.method(), SecurityAnalyticsPlugin.SAP_BASE_URI, monitorId);
 
         final FetchSourceContext srcContext = request.method().equals(RestRequest.Method.HEAD) ?
                 FetchSourceContext.DO_NOT_FETCH_SOURCE :
                 FetchSourceContext.parseFromRestRequest(request);
         return channel -> client.execute(CreateMonitorAction.INSTANCE, new CreateMonitorRequest(monitorId), new RestToXContentListener(channel));
+    }
+
+    @Override
+    public Set<String> responseParams() {
+        return Set.of("monitorId");
     }
 
 }

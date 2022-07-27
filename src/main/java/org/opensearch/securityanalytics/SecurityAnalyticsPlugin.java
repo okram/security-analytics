@@ -25,7 +25,8 @@ import java.util.function.Supplier;
 
 public class SecurityAnalyticsPlugin extends Plugin implements ActionPlugin {
 
-    public static final String MONITOR_BASE_URI = "_security_analytics";
+    public static final String SAP_BASE_URI = "/_plugins/_security_analytics";
+    public static final String ALERTING_BASE_URI = "/_plugins/_alerting";
 
     @Override
     public List<RestHandler> getRestHandlers(
@@ -39,19 +40,22 @@ public class SecurityAnalyticsPlugin extends Plugin implements ActionPlugin {
         return List.of(new RestCreateMonitorAction());
     }
 
+    public SecurityAnalyticsPlugin() {
+
+    }
+
     @Override
     public List<ActionHandler<? extends ActionRequest, ? extends ActionResponse>> getActions() {
-        return List.of(new ActionHandler<>(CreateMonitorAction.INSTANCE, TransportMonitorAction.class));
+        return List.of(
+                new ActionHandler<>(CreateMonitorAction.INSTANCE, TransportMonitorAction.class)
+                // ExecuteMonitorAction.INSTANCE
+        );
 
         /*ScheduledJobsStatsTransportAction:: class.java),
         ActionPlugin.ActionHandler(IndexMonitorAction.INSTANCE, TransportIndexMonitorAction:: class.java),*/
 
     }
 
-
-    public SecurityAnalyticsPlugin() {
-
-    }
 
     public void createMonitor() {
 
