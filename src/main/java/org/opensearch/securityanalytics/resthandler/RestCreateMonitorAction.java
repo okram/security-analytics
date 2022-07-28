@@ -11,7 +11,6 @@ import org.opensearch.client.node.NodeClient;
 import org.opensearch.rest.BaseRestHandler;
 import org.opensearch.rest.RestRequest;
 import org.opensearch.rest.action.RestToXContentListener;
-import org.opensearch.search.fetch.subphase.FetchSourceContext;
 import org.opensearch.securityanalytics.SecurityAnalyticsPlugin;
 import org.opensearch.securityanalytics.action.CreateMonitorAction;
 import org.opensearch.securityanalytics.action.CreateMonitorRequest;
@@ -20,7 +19,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import static org.opensearch.rest.RestRequest.Method.GET;
+import static org.opensearch.rest.RestRequest.Method.POST;
+import static org.opensearch.securityanalytics.resthandler.Tokens.MONITOR_ID;
+import static org.opensearch.securityanalytics.resthandler.Tokens._CREATE;
 
 public class RestCreateMonitorAction extends BaseRestHandler {
 
@@ -28,31 +29,26 @@ public class RestCreateMonitorAction extends BaseRestHandler {
 
     @Override
     public String getName() {
-        return "create";
+        return _CREATE;
     }
 
     @Override
     public List<Route> routes() {
-        return List.of(new Route(GET, SecurityAnalyticsPlugin.SAP_BASE_URI + "/" + getName()));
+        return List.of(new Route(POST, SecurityAnalyticsPlugin.SAP_MONITORS_BASE_URI + "/" + getName()));
     }
 
     @Override
     protected RestChannelConsumer prepareRequest(final RestRequest request, final NodeClient client) throws IOException {
-        final String monitorId = request.param("monitorId");
-        if (monitorId == null || monitorId.isEmpty())
+        final String monitorId = request.param(MONITOR_ID);
+        if (null == monitorId || monitorId.isEmpty())
             throw new IllegalArgumentException("missing monitorId");
-
-        LOG.debug("{} {}/{}", request.method(), SecurityAnalyticsPlugin.SAP_BASE_URI, monitorId);
-
-        final FetchSourceContext srcContext = request.method().equals(RestRequest.Method.HEAD) ?
-                FetchSourceContext.DO_NOT_FETCH_SOURCE :
-                FetchSourceContext.parseFromRestRequest(request);
+        LOG.debug("{} {}/{}", request.method(), SecurityAnalyticsPlugin.SAP_MONITORS_BASE_URI, monitorId);
         return channel -> client.execute(CreateMonitorAction.INSTANCE, new CreateMonitorRequest(monitorId), new RestToXContentListener(channel));
     }
 
     @Override
     public Set<String> responseParams() {
-        return Set.of("monitorId");
+        return Set.of(MONITOR_ID);
     }
 
 }

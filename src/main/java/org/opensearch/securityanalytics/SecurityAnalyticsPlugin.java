@@ -17,8 +17,11 @@ import org.opensearch.plugins.Plugin;
 import org.opensearch.rest.RestController;
 import org.opensearch.rest.RestHandler;
 import org.opensearch.securityanalytics.action.CreateMonitorAction;
+import org.opensearch.securityanalytics.action.ExecuteMonitorAction;
 import org.opensearch.securityanalytics.resthandler.RestCreateMonitorAction;
-import org.opensearch.securityanalytics.transport.TransportMonitorAction;
+import org.opensearch.securityanalytics.resthandler.RestExecuteMonitorAction;
+import org.opensearch.securityanalytics.transport.TransportCreateMonitorAction;
+import org.opensearch.securityanalytics.transport.TransportExecuteMonitorAction;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -26,6 +29,7 @@ import java.util.function.Supplier;
 public class SecurityAnalyticsPlugin extends Plugin implements ActionPlugin {
 
     public static final String SAP_BASE_URI = "/_plugins/_security_analytics";
+    public static final String SAP_MONITORS_BASE_URI = "/_plugins/_security_analytics/monitors";
     public static final String ALERTING_BASE_URI = "/_plugins/_alerting";
 
     @Override
@@ -37,7 +41,7 @@ public class SecurityAnalyticsPlugin extends Plugin implements ActionPlugin {
             final SettingsFilter settingsFilter,
             final IndexNameExpressionResolver indexNameExpressionResolver,
             final Supplier<DiscoveryNodes> nodesInCluster) {
-        return List.of(new RestCreateMonitorAction());
+        return List.of(new RestCreateMonitorAction(), new RestExecuteMonitorAction());
     }
 
     public SecurityAnalyticsPlugin() {
@@ -47,21 +51,7 @@ public class SecurityAnalyticsPlugin extends Plugin implements ActionPlugin {
     @Override
     public List<ActionHandler<? extends ActionRequest, ? extends ActionResponse>> getActions() {
         return List.of(
-                new ActionHandler<>(CreateMonitorAction.INSTANCE, TransportMonitorAction.class)
-                // ExecuteMonitorAction.INSTANCE
-        );
-
-        /*ScheduledJobsStatsTransportAction:: class.java),
-        ActionPlugin.ActionHandler(IndexMonitorAction.INSTANCE, TransportIndexMonitorAction:: class.java),*/
-
-    }
-
-
-    public void createMonitor() {
-
-    }
-
-    public void executeMonitor() {
-
+                new ActionHandler<>(CreateMonitorAction.INSTANCE, TransportCreateMonitorAction.class),
+                new ActionHandler<>(ExecuteMonitorAction.INSTANCE, TransportExecuteMonitorAction.class));
     }
 }

@@ -23,6 +23,10 @@ public class ExecuteMonitorResponse extends ActionResponse {
         this(input.readString());
     }
 
+    public String getMonitorId() {
+        return this.monitorId;
+    }
+
     @Override
     public void writeTo(final StreamOutput output) throws IOException {
         output.writeString(this.monitorId);
