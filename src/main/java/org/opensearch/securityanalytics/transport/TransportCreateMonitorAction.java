@@ -28,15 +28,19 @@ import static org.opensearch.securityanalytics.resthandler.Tokens._CREATE;
 public class TransportCreateMonitorAction extends TransportAction<CreateMonitorRequest, CreateMonitorResponse> {
 
     private final Client client;
+    private final NamedXContentRegistry xcontent;
+
 
     @Inject
     public TransportCreateMonitorAction(TransportService transport, final Client client, final ActionFilters actionFilters, NamedXContentRegistry xContentRegistry, final ClusterService clusterService, final Settings settings) {
         super(_CREATE, actionFilters, transport.getTaskManager());
         this.client = client;
+        this.xcontent = xContentRegistry;
     }
 
     @Override
     protected void doExecute(final Task task, final CreateMonitorRequest request, final ActionListener<CreateMonitorResponse> actionListener) {
+
         final Request alertRequest = new Request(RestRequest.Method.POST.name(), SecurityAnalyticsPlugin.ALERTING_BASE_URI + "/monitors");
         // alertRequest.setJsonEntity(); // TOOD: add JSON body
         try {

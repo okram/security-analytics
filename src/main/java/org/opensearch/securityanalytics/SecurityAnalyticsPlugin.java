@@ -12,12 +12,16 @@ import org.opensearch.common.settings.ClusterSettings;
 import org.opensearch.common.settings.IndexScopedSettings;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.settings.SettingsFilter;
+import org.opensearch.common.xcontent.NamedXContentRegistry;
 import org.opensearch.plugins.ActionPlugin;
 import org.opensearch.plugins.Plugin;
 import org.opensearch.rest.RestController;
 import org.opensearch.rest.RestHandler;
 import org.opensearch.securityanalytics.action.CreateMonitorAction;
 import org.opensearch.securityanalytics.action.ExecuteMonitorAction;
+import org.opensearch.securityanalytics.model.Input;
+import org.opensearch.securityanalytics.model.Monitor;
+import org.opensearch.securityanalytics.model.Query;
 import org.opensearch.securityanalytics.resthandler.RestCreateMonitorAction;
 import org.opensearch.securityanalytics.resthandler.RestExecuteMonitorAction;
 import org.opensearch.securityanalytics.transport.TransportCreateMonitorAction;
@@ -53,5 +57,13 @@ public class SecurityAnalyticsPlugin extends Plugin implements ActionPlugin {
         return List.of(
                 new ActionHandler<>(CreateMonitorAction.INSTANCE, TransportCreateMonitorAction.class),
                 new ActionHandler<>(ExecuteMonitorAction.INSTANCE, TransportExecuteMonitorAction.class));
+    }
+
+    @Override
+    public List<NamedXContentRegistry.Entry> getNamedXContent() {
+        return List.of(
+                Monitor.XCONTENT_REGISTRY,
+                Input.XCONTENT_REGISTRY,
+                Query.XCONTENT_REGISTRY);
     }
 }
