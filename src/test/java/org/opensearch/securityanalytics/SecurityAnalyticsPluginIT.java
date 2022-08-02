@@ -12,8 +12,8 @@ import org.opensearch.action.get.GetRequest;
 import org.opensearch.action.get.GetResponse;
 import org.opensearch.action.index.IndexResponse;
 import org.opensearch.plugins.PluginInfo;
-import org.opensearch.securityanalytics.SecurityAnalyticsIntegTestCase;
 import org.opensearch.securityanalytics.alerting.ExampleAlertingJSON;
+import org.opensearch.securityanalytics.resthandler.Tokens;
 
 import java.util.List;
 import java.util.Map;
@@ -22,9 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SecurityAnalyticsPluginIT extends SecurityAnalyticsIntegTestCase {
-
-    private static final String OPENSEARCH_ALERTING = "opensearch-alerting";
-    private static final String OPENSEARCH_SECURITY_ANALYTICS = "opensearch-security-analytics";
 
     public void testBothSecurityAndAlertingPluginsAreLoaded() {
         final NodesInfoRequest nodesInfoRequest = new NodesInfoRequest();
@@ -35,10 +32,10 @@ public class SecurityAnalyticsPluginIT extends SecurityAnalyticsIntegTestCase {
                 .flatMap((Function<NodeInfo, Stream<PluginInfo>>) nodeInfo -> nodeInfo.getInfo(PluginsAndModules.class)
                         .getPluginInfos().stream()).collect(Collectors.toList());
         assertTrue(pluginInfos.stream().anyMatch(pluginInfo -> pluginInfo.getName()
-                .equals(OPENSEARCH_SECURITY_ANALYTICS)));
+                .equals(Tokens.OPENSEARCH_SECURITY_ANALYTICS)));
         assertTrue(pluginInfos.stream().anyMatch(pluginInfo -> pluginInfo.getName()
-                .equals(OPENSEARCH_ALERTING)));
-        pluginInfos.stream().filter(x -> x.getName().equals(OPENSEARCH_ALERTING)).forEach(x -> logger.info(x.getDescription()));
+                .equals(Tokens.OPENSEARCH_ALERTING)));
+        pluginInfos.stream().filter(x -> x.getName().equals(Tokens.OPENSEARCH_ALERTING)).forEach(x -> logger.info(x.getDescription()));
     }
 
     public void testAlertingPluginBasic() throws Exception {

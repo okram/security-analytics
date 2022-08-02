@@ -5,6 +5,8 @@
 
 package org.opensearch.securityanalytics.action;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.opensearch.action.ActionRequest;
 import org.opensearch.action.ActionRequestValidationException;
 import org.opensearch.common.io.stream.StreamInput;
@@ -14,6 +16,8 @@ import org.opensearch.common.unit.TimeValue;
 import java.io.IOException;
 
 public class ExecuteMonitorRequest extends ActionRequest {
+
+    private static final Logger LOG = LogManager.getLogger(ExecuteMonitorRequest.class);
 
     final boolean dryRun;
     final TimeValue requestEnd;
@@ -26,7 +30,12 @@ public class ExecuteMonitorRequest extends ActionRequest {
     }
 
     public ExecuteMonitorRequest(final StreamInput input) throws IOException {
-        this(input.readString(), input.readTimeValue(), input.readBoolean());
+        LOG.info("HERE" + input);
+        this.monitorId = input.readString();
+        this.requestEnd = input.readTimeValue();
+        this.dryRun = input.readBoolean();
+
+        //this(input.readString(), input.readTimeValue(), input.readBoolean());
     }
 
 

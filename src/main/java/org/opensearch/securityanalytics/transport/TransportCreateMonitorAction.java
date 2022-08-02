@@ -17,9 +17,9 @@ import org.opensearch.common.settings.Settings;
 import org.opensearch.common.xcontent.NamedXContentRegistry;
 import org.opensearch.monitor.StatusInfo;
 import org.opensearch.rest.RestRequest;
-import org.opensearch.securityanalytics.SecurityAnalyticsPlugin;
 import org.opensearch.securityanalytics.action.CreateMonitorRequest;
 import org.opensearch.securityanalytics.action.CreateMonitorResponse;
+import org.opensearch.securityanalytics.resthandler.Tokens;
 import org.opensearch.tasks.Task;
 import org.opensearch.transport.TransportService;
 
@@ -41,10 +41,10 @@ public class TransportCreateMonitorAction extends TransportAction<CreateMonitorR
     @Override
     protected void doExecute(final Task task, final CreateMonitorRequest request, final ActionListener<CreateMonitorResponse> actionListener) {
 
-        final Request alertRequest = new Request(RestRequest.Method.POST.name(), SecurityAnalyticsPlugin.ALERTING_BASE_URI + "/monitors");
+        final Request alertRequest = new Request(RestRequest.Method.POST.name(), Tokens.ALERTING_BASE_URI + "/monitors");
         // alertRequest.setJsonEntity(); // TOOD: add JSON body
         try {
-            final Response response = null;//this.client.execute(null, alertRequest);
+            final Response response = null; //this.client.execute(null, alertRequest);
             if (response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() <= 299)
                 actionListener.onResponse(new CreateMonitorResponse(request.monitorId(), new StatusInfo(StatusInfo.Status.HEALTHY, "Monitor Created")));
             else

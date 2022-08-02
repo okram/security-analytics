@@ -11,7 +11,6 @@ import org.opensearch.client.node.NodeClient;
 import org.opensearch.rest.BaseRestHandler;
 import org.opensearch.rest.RestRequest;
 import org.opensearch.rest.action.RestToXContentListener;
-import org.opensearch.securityanalytics.SecurityAnalyticsPlugin;
 import org.opensearch.securityanalytics.action.CreateMonitorAction;
 import org.opensearch.securityanalytics.action.CreateMonitorRequest;
 
@@ -34,7 +33,7 @@ public class RestCreateMonitorAction extends BaseRestHandler {
 
     @Override
     public List<Route> routes() {
-        return List.of(new Route(POST, SecurityAnalyticsPlugin.SAP_MONITORS_BASE_URI + "/" + getName()));
+        return List.of(new Route(POST, Tokens.SAP_MONITORS_BASE_URI + "/" + getName()));
     }
 
     @Override
@@ -42,9 +41,11 @@ public class RestCreateMonitorAction extends BaseRestHandler {
         final String monitorId = request.param(MONITOR_ID);
         if (null == monitorId || monitorId.isEmpty())
             throw new IllegalArgumentException("missing monitorId");
-        LOG.debug("{} {}/{}", request.method(), SecurityAnalyticsPlugin.SAP_MONITORS_BASE_URI, monitorId);
+        LOG.debug("{} {}/{}", request.method(), Tokens.SAP_MONITORS_BASE_URI, monitorId);
         return channel -> client.execute(CreateMonitorAction.INSTANCE, new CreateMonitorRequest(monitorId), new RestToXContentListener(channel));
     }
+
+
 
     @Override
     public Set<String> responseParams() {

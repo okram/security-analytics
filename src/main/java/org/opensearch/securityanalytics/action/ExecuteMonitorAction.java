@@ -6,14 +6,14 @@
 package org.opensearch.securityanalytics.action;
 
 import org.opensearch.action.ActionType;
-import org.opensearch.common.io.stream.Writeable;
+import org.opensearch.securityanalytics.resthandler.Tokens;
 
 public class ExecuteMonitorAction extends ActionType<ExecuteMonitorResponse> {
 
-    private static final String NAME = "execute";
-    public static final ExecuteMonitorAction INSTANCE = new ExecuteMonitorAction(NAME, null);
+    public static final String NAME = "cluster:admin/opendistro/security_analytics/monitor/execute";
+    public static final ExecuteMonitorAction INSTANCE = new ExecuteMonitorAction();
 
-    public ExecuteMonitorAction(final String name, final Writeable.Reader<ExecuteMonitorResponse> responseReader) {
-        super(name, responseReader);
+    private ExecuteMonitorAction() {
+        super(Tokens.SAP_EXECUTE_MONITOR_ACTION, ExecuteMonitorResponse::new);
     }
 }

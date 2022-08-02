@@ -5,15 +5,28 @@
 
 package org.opensearch.securityanalytics.resthandler;
 
+import java.util.Locale;
+
 public final class Tokens {
 
     private Tokens() {
         // do nothing
     }
 
-    public static final String MONITOR_ID = "monitorId";
+
+    public static final String SAP_BASE_URI = "/_plugins/_security_analytics";
+    public static final String SAP_MONITORS_BASE_URI = SAP_BASE_URI +  "/monitors";
+    public static final String ALERTING_BASE_URI = "/_plugins/_alerting";
+    public static final String ALERTING_MONITORS_BASE_URI = ALERTING_BASE_URI + "/monitors";
+    public static final String OPENSEARCH_ALERTING = "opensearch-alerting";
+    public static final String OPENSEARCH_SECURITY_ANALYTICS = "opensearch-security-analytics";
+
+    public static final String SAP_EXECUTE_MONITOR_ACTION = "sap_execute_monitor_action";
+
+
+    public static final String MONITOR_ID = "monitorID";
     public static final String REQUEST_END = "requestEnd";
-    public static final String DRY_RUN = "dryRun";
+    public static final String DRY_RUN = "dryrun";
 
     public static final String ID = "id";
     public static final String NAME = "name";
@@ -37,4 +50,10 @@ public final class Tokens {
 
     public static final String _CREATE = "_create";
     public static final String _EXECUTE = "_execute";
+
+
+    public static String executeMonitor(final String baseURI, final String monitorId) {
+        return String.format(Locale.US, baseURI + "/%s/_execute", monitorId);
+    }
+
 }

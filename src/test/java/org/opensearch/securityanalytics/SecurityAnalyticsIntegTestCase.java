@@ -41,6 +41,10 @@ public abstract class SecurityAnalyticsIntegTestCase extends OpenSearchIntegTest
         return this.sendRequest(RestRequest.Method.POST.name(), route, json);
     }
 
+    public Response POST(final String route) throws IOException {
+        return this.sendRequest(RestRequest.Method.POST.name(), route, null);
+    }
+
     public Response DELETE(final String route) throws IOException {
         return this.sendRequest(RestRequest.Method.DELETE.name(), route, null);
     }
@@ -49,11 +53,12 @@ public abstract class SecurityAnalyticsIntegTestCase extends OpenSearchIntegTest
         final Request request = new Request(method, route);
         if (null != jsonEntity) request.setJsonEntity(jsonEntity);
         final Response response = getRestClient().performRequest(request);
-        if (LOG)
+        if (LOG) {
             this.logger.info("\n" + method + " " + route + (null == jsonEntity ? "" : "\n" + new JSONObject(jsonEntity).toString(4)) +
                     "\n\t===>\n[STATUS: " + response.getStatusLine().getStatusCode() + "]" +
                     (null == response.getEntity() ? "" :
                             "\n" + TestTools.prettyString(response.getEntity().getContent())));
+        }
         return response;
     }
 
