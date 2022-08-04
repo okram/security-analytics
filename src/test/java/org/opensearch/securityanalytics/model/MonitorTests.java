@@ -21,7 +21,7 @@ public class MonitorTests extends OpenSearchTestCase {
         ModelSerializer.write(output, monitor);
         final BytesStreamInput input = new BytesStreamInput(output.bytes().toBytesRef().bytes);
         final Monitor monitor2 = ModelSerializer.read(input, Monitor.class);
-        assertEquals(monitor.monitorId, monitor2.monitorId);
+        assertEquals(monitor.id, monitor2.id);
         assertEquals(monitor.monitorType, monitor2.monitorType);
         assertEquals(monitor.version, monitor2.version);
         assertEquals(monitor.name, monitor2.name);
@@ -37,8 +37,23 @@ public class MonitorTests extends OpenSearchTestCase {
         ModelSerializer.write(output, monitor);
         final BytesStreamInput input = new BytesStreamInput(output.bytes().toBytesRef().bytes);
         final Monitor monitor2 = ModelSerializer.read(input, Monitor.class);
-        assertEquals("monitorId", monitor2.monitorId);
+        assertEquals("monitorId", monitor2.id);
         assertEquals("doc_level_monitor", monitor2.monitorType);
+        assertEquals(1L, monitor2.version);
+        assertEquals("name", monitor2.name);
+        assertEquals(10L, monitor2.interval);
+        assertEquals("seconds", monitor2.unit);
+        assertEquals(List.of(), monitor2.inputs);
+    }
+
+    public void testNullFields() throws Exception {
+        final Monitor monitor = new Monitor("monitorId", null, 1L, "name", 10L, "seconds", List.of());
+        final BytesStreamOutput output = new BytesStreamOutput();
+        ModelSerializer.write(output, monitor);
+        final BytesStreamInput input = new BytesStreamInput(output.bytes().toBytesRef().bytes);
+        final Monitor monitor2 = ModelSerializer.read(input, Monitor.class);
+        assertEquals("monitorId", monitor2.id);
+        assertNull(monitor2.monitorType);
         assertEquals(1L, monitor2.version);
         assertEquals("name", monitor2.name);
         assertEquals(10L, monitor2.interval);

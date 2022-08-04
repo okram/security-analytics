@@ -18,4 +18,9 @@ public class AbstractModel implements ToXContentModel {
     public boolean equals(final Object other) {
         return ModelSerializer.areEquals(this, other);
     }
+
+    @Override
+    public String toString() {
+        return ModelSerializer.getString(this);
+    }
 }

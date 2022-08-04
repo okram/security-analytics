@@ -9,9 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.action.ActionRequest;
 import org.opensearch.action.ActionRequestValidationException;
-import org.opensearch.common.io.stream.StreamInput;
 import org.opensearch.common.io.stream.StreamOutput;
-import org.opensearch.common.unit.TimeValue;
+import org.opensearch.securityanalytics.model.Monitor;
 
 import java.io.IOException;
 
@@ -19,47 +18,23 @@ public class ExecuteMonitorRequest extends ActionRequest {
 
     private static final Logger LOG = LogManager.getLogger(ExecuteMonitorRequest.class);
 
-    final boolean dryRun;
-    final TimeValue requestEnd;
-    final String monitorId;
+    Monitor monitor;
 
-    public ExecuteMonitorRequest(final String monitorId, final TimeValue requestEnd, final boolean dryRun) {
-        this.monitorId = monitorId;
-        this.requestEnd = requestEnd;
-        this.dryRun = dryRun;
+    public ExecuteMonitorRequest(final Monitor monitor) {
+        this.monitor = monitor;
     }
 
-    public ExecuteMonitorRequest(final StreamInput input) throws IOException {
-        this.dryRun = input.readBoolean();
-        this.monitorId = input.readString();
-        this.requestEnd = input.readTimeValue();
-        input.readBoolean(); // READ MONITOR
-        //this(input.readString(), input.readTimeValue(), input.readBoolean());
-    }
-
-
-    public String getMonitorId() {
-        return this.monitorId;
-    }
-
-    public TimeValue getRequestEnd() {
-        return this.requestEnd;
-    }
-
-    public boolean getDryRun() {
-        return this.dryRun;
-    }
 
     @Override
     public ActionRequestValidationException validate() {
-        return null == this.monitorId ? new ActionRequestValidationException() : null;
+        return null == this.monitor.id ? new ActionRequestValidationException() : null;
     }
 
     @Override
     public void writeTo(final StreamOutput out) throws IOException {
-        out.writeBoolean(this.dryRun);
+     /*   out.writeBoolean(this.dryRun);
         out.writeTimeValue(this.requestEnd);
         out.writeOptionalString(this.monitorId);
-        out.writeBoolean(false); // NO MONITOR
+        out.writeBoolean(false); // NO MONITOR*/
     }
 }

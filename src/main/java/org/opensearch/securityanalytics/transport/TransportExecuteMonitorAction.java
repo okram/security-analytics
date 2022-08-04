@@ -36,7 +36,7 @@ public class TransportExecuteMonitorAction extends TransportAction<ExecuteMonito
     protected void doExecute(final Task task, final ExecuteMonitorRequest request, final ActionListener<ExecuteMonitorResponse> actionListener) {
         try {
             //final Response response = tools.POST(Tokens.executeMonitor(Tokens.ALERTING_MONITORS_BASE_URI, request.getMonitorId()));
-            actionListener.onResponse(new ExecuteMonitorResponse(request.getMonitorId()));
+            //actionListener.onResponse(new ExecuteMonitorResponse(request.id()));
         } catch (final Exception e) {
             actionListener.onFailure(e);
         }

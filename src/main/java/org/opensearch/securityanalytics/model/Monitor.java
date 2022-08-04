@@ -14,7 +14,7 @@ public class Monitor extends AbstractModel {
 
     public static NamedXContentRegistry.Entry XCONTENT_REGISTRY = ToXContentModel.createRegistryEntry(Monitor.class);
 
-    public String monitorId;
+    public String id;
     public String monitorType;
     public long version;
     public String name;
@@ -26,8 +26,8 @@ public class Monitor extends AbstractModel {
         // for serialization
     }
 
-    public Monitor(final String monitorId, final String monitorType, final long version, final String name, final long interval, final String unit, final List<Input> inputs) {
-        this.monitorId = monitorId;
+    public Monitor(final String id, final String monitorType, final long version, final String name, final long interval, final String unit, final List<Input> inputs) {
+        this.id = id;
         this.monitorType = monitorType;
         this.version = version;
         this.name = name;

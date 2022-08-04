@@ -91,26 +91,31 @@ public class ModelSerializer {
     public static <T> void write(final StreamOutput output, final T model) throws IOException {
         try {
             for (final Field field : ModelSerializer.getSortedFields(model.getClass())) {
-                if (checkType(field, Boolean.class))
-                    output.writeBoolean(field.getBoolean(model));
-                else if (checkType(field, String.class))
-                    output.writeString((String) field.get(model));
-                else if (checkType(field, long.class))
-                    output.writeLong(field.getLong(model));
-                else if (checkType(field, Integer.class))
-                    output.writeInt(field.getInt(model));
-                else if (checkType(field, TimeValue.class))
-                    output.writeTimeValue((TimeValue) field.get(model));
-                else if (checkType(field, List.class, String.class))
-                    output.writeStringCollection((List<String>) field.get(model));
-                else if (checkType(field, List.class)) {
-                    List list = (List) field.get(model);
-                    output.writeInt(list.size());
-                    for (final Object obj : list) {
-                        ModelSerializer.write(output, obj);
-                    }
-                } else
+                if (null == field.get(model))
                     output.writeBoolean(false);
+                else {
+                    output.writeBoolean(true);
+                    if (checkType(field, Boolean.class))
+                        output.writeBoolean(field.getBoolean(model));
+                    else if (checkType(field, String.class))
+                        output.writeString((String) field.get(model));
+                    else if (checkType(field, long.class))
+                        output.writeLong(field.getLong(model));
+                    else if (checkType(field, Integer.class))
+                        output.writeInt(field.getInt(model));
+                    else if (checkType(field, TimeValue.class))
+                        output.writeTimeValue((TimeValue) field.get(model));
+                    else if (checkType(field, List.class, String.class))
+                        output.writeStringCollection((List<String>) field.get(model));
+                    else if (checkType(field, List.class)) {
+                        List list = (List) field.get(model);
+                        output.writeInt(list.size());
+                        for (final Object obj : list) {
+                            ModelSerializer.write(output, obj);
+                        }
+                    } else
+                        output.writeBoolean(false);
+                }
             }
         } catch (IllegalAccessException e) {
             throw new IOException(e);
@@ -121,27 +126,30 @@ public class ModelSerializer {
         try {
             final T model = modelClass.getConstructor().newInstance();
             for (final Field field : ModelSerializer.getSortedFields(modelClass)) {
-                if (checkType(field, Boolean.class))
-                    field.set(model, input.readBoolean());
-                else if (checkType(field, String.class))
-                    field.set(model, input.readString());
-                else if (checkType(field, long.class))
-                    field.set(model, input.readLong());
-                else if (checkType(field, Integer.class))
-                    field.set(model, input.readInt());
-                else if (checkType(field, TimeValue.class))
-                    field.set(model, input.readTimeValue());
-                else if (checkType(field, List.class, String.class))
-                    field.set(model, input.readStringList());
-                else if (checkType(field, List.class)) {
-                    final int size = input.readInt();
-                    final List list = new ArrayList();
-                    for (int i = 0; i < size; i++) {
-                        list.add(ModelSerializer.read(input, getListGeneric(field)));
-                    }
-                    field.set(model, list);
-                } else
-                    assert !input.readBoolean();
+                final boolean exists = input.readBoolean();
+                if (exists) {
+                    if (checkType(field, Boolean.class))
+                        field.set(model, input.readBoolean());
+                    else if (checkType(field, String.class))
+                        field.set(model, input.readString());
+                    else if (checkType(field, long.class))
+                        field.set(model, input.readLong());
+                    else if (checkType(field, Integer.class))
+                        field.set(model, input.readInt());
+                    else if (checkType(field, TimeValue.class))
+                        field.set(model, input.readTimeValue());
+                    else if (checkType(field, List.class, String.class))
+                        field.set(model, input.readStringList());
+                    else if (checkType(field, List.class)) {
+                        final int size = input.readInt();
+                        final List list = new ArrayList();
+                        for (int i = 0; i < size; i++) {
+                            list.add(ModelSerializer.read(input, getListGeneric(field)));
+                        }
+                        field.set(model, list);
+                    } else
+                        assert !input.readBoolean();
+                }
             }
             return model;
         } catch (final Exception e) {
@@ -157,12 +165,27 @@ public class ModelSerializer {
                 .stream()
                 .map(field -> {
                     try {
-                        return field.get(object).hashCode();
+                        return Objects.hashCode(field.get(object));
                     } catch (final Exception e) {
                         throw new RuntimeException(e);
                     }
                 })
                 .reduce((a, b) -> a ^ b).orElseThrow();
+    }
+
+    public static String getString(final Object object) {
+        final StringBuilder builder = new StringBuilder(object.getClass().getSimpleName()).append("[");
+        ModelSerializer.getSortedFields(object.getClass())
+                .forEach(field -> {
+                    try {
+                        builder.append(field.getName()).append("=").append(field.get(object)).append(",");
+                    } catch (final Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+        builder.deleteCharAt(builder.length() - 1);
+        builder.append("]");
+        return builder.toString();
     }
 
     public static boolean areEquals(final Object a, final Object b) {
@@ -172,14 +195,14 @@ public class ModelSerializer {
                 .stream()
                 .allMatch(field -> {
                     try {
-                        return field.get(a).equals(field.get(b));
+                        return Objects.equals(field.get(a), field.get(b));
                     } catch (final Exception e) {
                         throw new RuntimeException(e);
                     }
                 });
     }
 
-    private static List<Field> getSortedFields(final Class<?> modelClass) {
+    public static List<Field> getSortedFields(final Class<?> modelClass) {
         return Arrays.stream(modelClass.getFields())
                 .filter(field -> Modifier.isPublic(field.getModifiers()))
                 .filter(field -> !Modifier.isStatic(field.getModifiers()))
@@ -187,11 +210,11 @@ public class ModelSerializer {
                 .collect(Collectors.toList());
     }
 
-    private static boolean checkType(final Field check, final Class<?> against) {
+    public static boolean checkType(final Field check, final Class<?> against) {
         return against.isAssignableFrom(check.getType());
     }
 
-    private static <T> Class<T> getListGeneric(final Field field) {
+    public static <T> Class<T> getListGeneric(final Field field) {
         if (!(field.getGenericType() instanceof ParameterizedType))
             throw new IllegalArgumentException();
         try {
@@ -202,8 +225,8 @@ public class ModelSerializer {
         }
     }
 
-    private static <T> boolean checkType(final Field check, final Class<? extends Collection> collection,
-                                         final Class<T> elements) {
+    public static <T> boolean checkType(final Field check, final Class<? extends Collection> collection,
+                                        final Class<T> elements) {
         try {
             if (!(check.getGenericType() instanceof ParameterizedType))
                 return false;
