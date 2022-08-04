@@ -6,6 +6,7 @@
 package org.opensearch.securityanalytics.model;
 
 import org.opensearch.common.xcontent.NamedXContentRegistry;
+import org.opensearch.securityanalytics.model.util.ModelSerializer;
 import org.opensearch.securityanalytics.model.util.ToXContentModel;
 
 import java.util.List;
@@ -29,5 +30,13 @@ public class Query implements ToXContentModel {
         this.tags = tags;
     }
 
+    @Override
+    public int hashCode() {
+        return ModelSerializer.getHashCode(this);
+    }
 
+    @Override
+    public boolean equals(final Object other) {
+        return ModelSerializer.areEquals(this, other);
+    }
 }

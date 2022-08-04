@@ -103,7 +103,13 @@ public class ModelSerializer {
                     output.writeTimeValue((TimeValue) field.get(model));
                 else if (checkType(field, List.class, String.class))
                     output.writeStringCollection((List<String>) field.get(model));
-                else
+                else if (checkType(field, List.class)) {
+                    List list = (List) field.get(model);
+                    output.writeInt(list.size());
+                    for (final Object obj : list) {
+                        ModelSerializer.write(output, obj);
+                    }
+                } else
                     output.writeBoolean(false);
             }
         } catch (IllegalAccessException e) {
@@ -127,7 +133,14 @@ public class ModelSerializer {
                     field.set(model, input.readTimeValue());
                 else if (checkType(field, List.class, String.class))
                     field.set(model, input.readStringList());
-                else
+                else if (checkType(field, List.class)) {
+                    final int size = input.readInt();
+                    final List list = new ArrayList();
+                    for (int i = 0; i < size; i++) {
+                        list.add(ModelSerializer.read(input, getListGeneric(field)));
+                    }
+                    field.set(model, list);
+                } else
                     assert !input.readBoolean();
             }
             return model;
@@ -137,6 +150,33 @@ public class ModelSerializer {
             else
                 throw new IOException(e);
         }
+    }
+
+    public static int getHashCode(final Object object) {
+        return ModelSerializer.getSortedFields(object.getClass())
+                .stream()
+                .map(field -> {
+                    try {
+                        return field.get(object).hashCode();
+                    } catch (final Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .reduce((a, b) -> a ^ b).orElseThrow();
+    }
+
+    public static boolean areEquals(final Object a, final Object b) {
+        if (!a.getClass().equals(b.getClass()))
+            return false;
+        return ModelSerializer.getSortedFields(a.getClass())
+                .stream()
+                .allMatch(field -> {
+                    try {
+                        return field.get(a).equals(field.get(b));
+                    } catch (final Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
     private static List<Field> getSortedFields(final Class<?> modelClass) {
@@ -149,6 +189,17 @@ public class ModelSerializer {
 
     private static boolean checkType(final Field check, final Class<?> against) {
         return against.isAssignableFrom(check.getType());
+    }
+
+    private static <T> Class<T> getListGeneric(final Field field) {
+        if (!(field.getGenericType() instanceof ParameterizedType))
+            throw new IllegalArgumentException();
+        try {
+            final ParameterizedType paramType = (ParameterizedType) field.getGenericType();
+            return (Class<T>) Class.forName(paramType.getActualTypeArguments()[0].getTypeName());
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static <T> boolean checkType(final Field check, final Class<? extends Collection> collection,

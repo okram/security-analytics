@@ -14,6 +14,7 @@ import org.opensearch.common.xcontent.NamedXContentRegistry;
 import org.opensearch.common.xcontent.ToXContentObject;
 import org.opensearch.common.xcontent.XContentBuilder;
 import org.opensearch.common.xcontent.XContentParser;
+import org.opensearch.securityanalytics.model.util.ModelSerializer;
 import org.opensearch.securityanalytics.resthandler.Tokens;
 
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class Monitor implements ToXContentObject {
     }
 
     public Monitor(final StreamInput in) throws IOException {
-        this(in.readString(), in.readLong(), in.readString(), in.readBoolean(), in.readLong(), in.readString(), in.readList(new Input.Reader()));
+        this(in.readString(), in.readLong(), in.readString(), in.readBoolean(), in.readLong(), in.readString(), ModelSerializer.read(in, List.class));
     }
 
     public static NamedXContentRegistry.Entry XCONTENT_REGISTRY = new NamedXContentRegistry.Entry(Monitor.class, new ParseField(MONITOR_TYPE), new CheckedFunction<XContentParser, Monitor, IOException>() {
@@ -104,7 +105,7 @@ public class Monitor implements ToXContentObject {
         out.writeBoolean(this.enabled);
         out.writeLong(this.interval);
         out.writeString(this.unit);
-        out.writeCollection(this.inputs, new Input.Writer());
+        ModelSerializer.write(out, this.inputs);
     }
 
     @Override

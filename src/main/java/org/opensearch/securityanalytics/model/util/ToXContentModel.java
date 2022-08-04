@@ -12,13 +12,12 @@ import org.opensearch.common.xcontent.XContentBuilder;
 import org.opensearch.securityanalytics.model.Query;
 
 import java.io.IOException;
-
-import static org.opensearch.securityanalytics.resthandler.Tokens.QUERIES;
+import java.util.Locale;
 
 public interface ToXContentModel extends ToXContentObject {
 
     static NamedXContentRegistry.Entry createRegistryEntry(final Class<? extends ToXContentModel> modelClass) {
-        return new NamedXContentRegistry.Entry(Query.class, new ParseField(QUERIES), parser -> ModelSerializer.read(parser, modelClass));
+        return new NamedXContentRegistry.Entry(Query.class, new ParseField(modelClass.getSimpleName().toLowerCase(Locale.getDefault())), parser -> ModelSerializer.read(parser, modelClass));
     }
 
     @Override
