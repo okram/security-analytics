@@ -11,6 +11,7 @@ import org.opensearch.securityanalytics.TestTools;
 import org.opensearch.securityanalytics.resthandler.Tokens;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
 public class ExecuteMonitorIT extends SecurityAnalyticsIntegTestCase {
@@ -52,6 +53,7 @@ public class ExecuteMonitorIT extends SecurityAnalyticsIntegTestCase {
         logger.info("ENTITY RESPONSE =>\n" + json.toString(4));
         final String id = json.getString("_id");
         logger.info("Monitor id: " + id);
+        logger.info("HERE" + Arrays.toString(cluster().httpAddresses()));
         assertEquals(200, POST(Tokens.executeMonitor(Tokens.SAP_MONITORS_BASE_URI, id)).getStatusLine().getStatusCode());
     }
 }

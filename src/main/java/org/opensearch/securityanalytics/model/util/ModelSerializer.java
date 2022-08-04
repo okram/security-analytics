@@ -1,0 +1,166 @@
+/*
+ * Copyright OpenSearch Contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+package org.opensearch.securityanalytics.model.util;
+
+import org.opensearch.common.io.stream.StreamInput;
+import org.opensearch.common.io.stream.StreamOutput;
+import org.opensearch.common.io.stream.Writeable;
+import org.opensearch.common.unit.TimeValue;
+import org.opensearch.common.xcontent.XContentBuilder;
+import org.opensearch.common.xcontent.XContentParser;
+
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class ModelSerializer {
+
+    private ModelSerializer() {
+        // do nothing
+    }
+
+    public static class ReaderWriter<T> implements Writeable.Reader<T>, Writeable.Writer<T> {
+
+        private final Class<T> modelClass;
+
+        public ReaderWriter(final Class<T> modelClass) {
+            this.modelClass = modelClass;
+        }
+
+        @Override
+        public T read(final StreamInput input) throws IOException {
+            return ModelSerializer.read(input, this.modelClass);
+        }
+
+        @Override
+        public void write(final StreamOutput output, final T t) throws IOException {
+            ModelSerializer.write(output, t);
+        }
+    }
+
+    public static <T> XContentBuilder write(final XContentBuilder builder, final T model) throws IOException {
+        builder.startObject();
+        try {
+            for (final Field field : ModelSerializer.getSortedFields(model.getClass())) {
+                builder.field(field.getName(), field.get(model));
+            }
+        } catch (IllegalAccessException e) {
+            throw new IOException(e);
+        }
+        builder.endObject();
+        return builder;
+    }
+
+    public static <T> T read(final XContentParser parser, final Class modelClass) throws IOException {
+        try {
+            final T model = (T) modelClass.getConstructor().newInstance();
+            for (final Field field : ModelSerializer.getSortedFields(model.getClass())) {
+                final String fieldName = parser.currentName();
+                assert field.getName().equals(fieldName);
+                parser.nextToken();
+                if (checkType(field, Boolean.class))
+                    field.set(model, parser.booleanValue());
+                else if (checkType(field, String.class))
+                    field.set(model, parser.text());
+                else if (checkType(field, Long.class))
+                    field.set(model, parser.longValue());
+                else if (checkType(field, Integer.class))
+                    field.set(model, parser.intValue());
+                    // else if (checkType(field, TimeValue.class))
+                    //     field.set(model, parser.);
+                else if (checkType(field, List.class))
+                    field.set(model, parser.list());
+                else
+                    throw new IllegalArgumentException(String.format(Locale.getDefault(), "Unsupported field type %s in model %s", field.getType().getName(), model.getClass().getSimpleName()));
+            }
+            return model;
+        } catch (final Exception e) {
+            if (e instanceof IOException)
+                throw (IOException) e;
+            else
+                throw new IOException(e);
+        }
+    }
+
+    public static <T> void write(final StreamOutput output, final T model) throws IOException {
+        try {
+            for (final Field field : ModelSerializer.getSortedFields(model.getClass())) {
+                if (checkType(field, Boolean.class))
+                    output.writeBoolean(field.getBoolean(model));
+                else if (checkType(field, String.class))
+                    output.writeString((String) field.get(model));
+                else if (checkType(field, Long.class))
+                    output.writeLong(field.getLong(model));
+                else if (checkType(field, Integer.class))
+                    output.writeInt(field.getInt(model));
+                else if (checkType(field, TimeValue.class))
+                    output.writeTimeValue((TimeValue) field.get(model));
+                else if (checkType(field, List.class, String.class))
+                    output.writeStringCollection((List<String>) field.get(model));
+                else
+                    output.writeBoolean(false);
+            }
+        } catch (IllegalAccessException e) {
+            throw new IOException(e);
+        }
+    }
+
+    public static <T> T read(final StreamInput input, final Class<T> modelClass) throws IOException {
+        try {
+            final T model = modelClass.getConstructor().newInstance();
+            for (final Field field : ModelSerializer.getSortedFields(modelClass)) {
+                if (checkType(field, Boolean.class))
+                    field.set(model, input.readBoolean());
+                else if (checkType(field, String.class))
+                    field.set(model, input.readString());
+                else if (checkType(field, Long.class))
+                    field.set(model, input.readLong());
+                else if (checkType(field, Integer.class))
+                    field.set(model, input.readInt());
+                else if (checkType(field, TimeValue.class))
+                    field.set(model, input.readTimeValue());
+                else if (checkType(field, List.class, String.class))
+                    field.set(model, input.readStringList());
+                else
+                    assert !input.readBoolean();
+            }
+            return model;
+        } catch (final Exception e) {
+            if (e instanceof IOException)
+                throw (IOException) e;
+            else
+                throw new IOException(e);
+        }
+    }
+
+    private static List<Field> getSortedFields(final Class<?> modelClass) {
+        return Arrays.stream(modelClass.getFields())
+                .filter(field -> Modifier.isPublic(field.getModifiers()))
+                .filter(field -> !Modifier.isStatic(field.getModifiers()))
+                .sorted(Comparator.comparing(Field::getName))
+                .collect(Collectors.toList());
+    }
+
+    private static boolean checkType(final Field check, final Class<?> against) {
+        return against.isAssignableFrom(check.getType());
+    }
+
+    private static <T> boolean checkType(final Field check, final Class<? extends Collection> collection,
+                                         final Class<T> elements) {
+        try {
+            if (!(check.getGenericType() instanceof ParameterizedType))
+                return false;
+            final ParameterizedType paramType = (ParameterizedType) check.getGenericType();
+            return collection.isAssignableFrom(Class.forName(paramType.getRawType().getTypeName())) &&
+                    elements.isAssignableFrom(Class.forName(paramType.getActualTypeArguments()[0].getTypeName()));
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}

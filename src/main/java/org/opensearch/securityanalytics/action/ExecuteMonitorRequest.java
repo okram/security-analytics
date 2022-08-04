@@ -30,11 +30,10 @@ public class ExecuteMonitorRequest extends ActionRequest {
     }
 
     public ExecuteMonitorRequest(final StreamInput input) throws IOException {
-        LOG.info("HERE" + input);
+        this.dryRun = input.readBoolean();
         this.monitorId = input.readString();
         this.requestEnd = input.readTimeValue();
-        this.dryRun = input.readBoolean();
-
+        input.readBoolean(); // READ MONITOR
         //this(input.readString(), input.readTimeValue(), input.readBoolean());
     }
 
@@ -61,5 +60,6 @@ public class ExecuteMonitorRequest extends ActionRequest {
         out.writeBoolean(this.dryRun);
         out.writeTimeValue(this.requestEnd);
         out.writeOptionalString(this.monitorId);
+        out.writeBoolean(false); // NO MONITOR
     }
 }

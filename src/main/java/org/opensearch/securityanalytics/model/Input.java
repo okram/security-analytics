@@ -14,6 +14,7 @@ import org.opensearch.common.xcontent.NamedXContentRegistry;
 import org.opensearch.common.xcontent.ToXContentObject;
 import org.opensearch.common.xcontent.XContentBuilder;
 import org.opensearch.common.xcontent.XContentParser;
+import org.opensearch.securityanalytics.model.util.ModelSerializer;
 import org.opensearch.securityanalytics.resthandler.Tokens;
 
 import java.io.IOException;
@@ -36,13 +37,13 @@ public class Input implements ToXContentObject {
     }
 
     public Input(final StreamInput in) throws IOException {
-        this(in.readString(), in.readStringList(), in.readList(new Query.Reader()));
+        this(in.readString(), in.readStringList(), in.readList(new ModelSerializer.ReaderWriter<>(Query.class)));
     }
 
     public void writeTo(final StreamOutput out) throws IOException {
         out.writeString(this.description);
         out.writeStringCollection(this.indices);
-        out.writeCollection(this.queries, new Query.Writer());
+        out.writeCollection(this.queries, new ModelSerializer.ReaderWriter<>(Query.class));
     }
 
     @Override

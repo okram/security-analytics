@@ -14,6 +14,6 @@ public class ExecuteMonitorAction extends ActionType<ExecuteMonitorResponse> {
     public static final ExecuteMonitorAction INSTANCE = new ExecuteMonitorAction();
 
     private ExecuteMonitorAction() {
-        super(Tokens.SAP_EXECUTE_MONITOR_ACTION, ExecuteMonitorResponse::new);
+        super(NAME, ExecuteMonitorResponse::new);
     }
 }
