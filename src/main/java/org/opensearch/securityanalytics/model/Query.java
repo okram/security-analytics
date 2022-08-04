@@ -6,12 +6,11 @@
 package org.opensearch.securityanalytics.model;
 
 import org.opensearch.common.xcontent.NamedXContentRegistry;
-import org.opensearch.securityanalytics.model.util.ModelSerializer;
 import org.opensearch.securityanalytics.model.util.ToXContentModel;
 
 import java.util.List;
 
-public class Query implements ToXContentModel {
+public class Query extends AbstractModel {
 
     public static NamedXContentRegistry.Entry XCONTENT_REGISTRY = ToXContentModel.createRegistryEntry(Query.class);
 
@@ -21,6 +20,7 @@ public class Query implements ToXContentModel {
     public List<String> tags;
 
     public Query() {
+        // for serialization
     }
 
     public Query(final String id, final String name, final String query, final List<String> tags) {
@@ -30,13 +30,4 @@ public class Query implements ToXContentModel {
         this.tags = tags;
     }
 
-    @Override
-    public int hashCode() {
-        return ModelSerializer.getHashCode(this);
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        return ModelSerializer.areEquals(this, other);
-    }
 }

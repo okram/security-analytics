@@ -95,7 +95,7 @@ public class ModelSerializer {
                     output.writeBoolean(field.getBoolean(model));
                 else if (checkType(field, String.class))
                     output.writeString((String) field.get(model));
-                else if (checkType(field, Long.class))
+                else if (checkType(field, long.class))
                     output.writeLong(field.getLong(model));
                 else if (checkType(field, Integer.class))
                     output.writeInt(field.getInt(model));
@@ -125,7 +125,7 @@ public class ModelSerializer {
                     field.set(model, input.readBoolean());
                 else if (checkType(field, String.class))
                     field.set(model, input.readString());
-                else if (checkType(field, Long.class))
+                else if (checkType(field, long.class))
                     field.set(model, input.readLong());
                 else if (checkType(field, Integer.class))
                     field.set(model, input.readInt());
