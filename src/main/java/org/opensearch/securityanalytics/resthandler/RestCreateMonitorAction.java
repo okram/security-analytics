@@ -7,20 +7,17 @@ package org.opensearch.securityanalytics.resthandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.opensearch.alerting.action.IndexMonitorRequest;
 import org.opensearch.client.node.NodeClient;
+import org.opensearch.commons.alerting.action.IndexMonitorAction;
 import org.opensearch.rest.BaseRestHandler;
 import org.opensearch.rest.RestRequest;
 import org.opensearch.rest.action.RestToXContentListener;
-import org.opensearch.securityanalytics.action.CreateMonitorAction;
-import org.opensearch.securityanalytics.action.CreateMonitorRequest;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import static org.opensearch.rest.RestRequest.Method.POST;
-import static org.opensearch.securityanalytics.resthandler.Tokens.MONITOR_ID;
-import static org.opensearch.securityanalytics.resthandler.Tokens._CREATE;
 
 public class RestCreateMonitorAction extends BaseRestHandler {
 
@@ -28,7 +25,7 @@ public class RestCreateMonitorAction extends BaseRestHandler {
 
     @Override
     public String getName() {
-        return _CREATE;
+        return "create_monitor_action";
     }
 
     @Override
@@ -38,18 +35,16 @@ public class RestCreateMonitorAction extends BaseRestHandler {
 
     @Override
     protected RestChannelConsumer prepareRequest(final RestRequest request, final NodeClient client) throws IOException {
-        final String monitorId = request.param(MONITOR_ID);
-        if (null == monitorId || monitorId.isEmpty())
-            throw new IllegalArgumentException("missing monitorId");
+        final String monitorId = request.param("monitorID");
         LOG.debug("{} {}/{}", request.method(), Tokens.SAP_MONITORS_BASE_URI, monitorId);
-        return channel -> client.execute(CreateMonitorAction.INSTANCE, new CreateMonitorRequest(monitorId), new RestToXContentListener(channel));
+        if (monitorId == null || monitorId.isEmpty()) {
+            throw new IllegalArgumentException("missing id");
+        }
+        return channel -> client.execute(IndexMonitorAction.Companion.getINSTANCE(), new IndexMonitorRequest(request.content().streamInput()), new RestToXContentListener<>(channel));
     }
-
-
-
-    @Override
+    /*@Override
     public Set<String> responseParams() {
         return Set.of(MONITOR_ID);
-    }
+    }*/
 
 }

@@ -9,11 +9,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.client.node.NodeClient;
 import org.opensearch.common.unit.TimeValue;
+import org.opensearch.commons.alerting.action.ExecuteMonitorAction;
+import org.opensearch.commons.alerting.action.ExecuteMonitorRequest;
 import org.opensearch.rest.BaseRestHandler;
 import org.opensearch.rest.RestRequest;
 import org.opensearch.rest.action.RestToXContentListener;
-import org.opensearch.securityanalytics.action.ExecuteMonitorAction;
-import org.opensearch.securityanalytics.action.ExecuteMonitorRequest;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,7 +28,7 @@ public class RestExecuteMonitorAction extends BaseRestHandler {
 
     @Override
     public String getName() {
-        return "sap_execute_monitor_action";
+        return "execute_monitor_action";
     }
 
     @Override
@@ -44,7 +44,7 @@ public class RestExecuteMonitorAction extends BaseRestHandler {
             final TimeValue requestEnd = request.paramAsTime(REQUEST_END, TimeValue.MAX_VALUE);
             final boolean dryRun = request.paramAsBoolean(DRY_RUN, false);
             if (null == monitorId || monitorId.isEmpty()) throw new IllegalArgumentException("missing monitorID");
-         //   client.execute(ExecuteMonitorAction.INSTANCE, new ExecuteMonitorRequest(monitorId, TimeValue.MAX_VALUE, true), new RestToXContentListener(channel));
+            client.execute(ExecuteMonitorAction.Companion.getINSTANCE(), new ExecuteMonitorRequest(dryRun, requestEnd, monitorId, null), new RestToXContentListener<>(channel));
         };
     }
 

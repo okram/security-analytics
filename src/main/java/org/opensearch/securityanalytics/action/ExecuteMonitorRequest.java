@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.opensearch.action.ActionRequest;
 import org.opensearch.action.ActionRequestValidationException;
 import org.opensearch.common.io.stream.StreamOutput;
-import org.opensearch.securityanalytics.model.Monitor;
+import org.opensearch.commons.alerting.model.Monitor;
 
 import java.io.IOException;
 
@@ -27,7 +27,7 @@ public class ExecuteMonitorRequest extends ActionRequest {
 
     @Override
     public ActionRequestValidationException validate() {
-        return null == this.monitor.id ? new ActionRequestValidationException() : null;
+        return null;
     }
 
     @Override
